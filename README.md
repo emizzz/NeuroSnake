@@ -1,2 +1,3 @@
 # NeuroSnake
-NeuroEvolution (NEAT) for a Snake Clone
+NeuroEvolution (NEAT) for a Snake Clone.
+PyGame + Neat
