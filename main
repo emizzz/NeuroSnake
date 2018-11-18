@@ -1,0 +1,77 @@
+import pygame
+import neat
+import numpy as np
+from src.game.Game import Game
+from src.game.Config import Config
+from src.ai.ai_config import ai_config
+from src.ai.Validation import Validation
+from src.ai import visualize
+
+#GLOBAL VARS
+GAME = None
+DISPLAY = None
+validator = Validation
+GENERATION = 1
+
+def eval_genomes(genomes, config):
+    global GENERATION
+
+    genomes = [genome[1] for genome in genomes]
+    GAME = Game(DISPLAY, genomes=genomes, config=config, mod=ai_config['mod'])
+    generation_fitness = GAME.play()
+    for i, (genome) in enumerate(genomes):
+        genome.fitness = generation_fitness[i]
+
+    print("GENERATION N. " + str(GENERATION))
+    GENERATION += 1
+
+def main():
+    global GAME
+    global DISPLAY
+
+    DISPLAY = pygame.display.set_mode((
+        Config['game']['size'],
+        Config['game']['size']
+    ))
+    pygame.display.set_caption(Config['game']['caption'])
+
+    if ai_config['mod'] is not "HUMAN":
+        config = neat.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                             neat.DefaultSpeciesSet, neat.DefaultStagnation,
+                             './src/ai/neat_config')
+
+    if ai_config['mod'] == "HUMAN":
+        GAME = Game(DISPLAY, mod=ai_config['mod'])
+        GAME.play()
+
+    if ai_config['mod'] == "BEST":
+        genome = validator.load_data(ai_config['best_file'])
+        #print(genome)
+        #visualize.draw_net(config, genome, True)
+        GAME = Game(DISPLAY, genomes=[genome], config=config, mod=ai_config['mod'])
+        GAME.play()
+
+    if ai_config['mod'] == "BEST_MEAN_LIFETIME":
+        genome = validator.load_data(ai_config['best_file'])
+        lifetimes = np.empty(0)
+        for i in range(0, 100):
+            GAME = Game(DISPLAY, genomes=[genome], config=config, mod=ai_config['mod'])
+            lifetime = GAME.play()
+            lifetimes = np.append(lifetimes, lifetime)
+        print(validator.mean(lifetimes))
+
+    if ai_config['mod'] == "TRAIN" or ai_config['mod'] == "TRAIN_NO_DRAW":
+        pop = neat.Population(config)
+        stats = neat.StatisticsReporter()
+        pop.add_reporter(stats)
+        pop.run(eval_genomes, ai_config['num_generations'])
+
+        if ai_config['save_data'] is True:
+            validator.save_data(stats, config)
+
+if __name__ == '__main__':
+    main()
+
+
+
+
