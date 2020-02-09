@@ -3,4 +3,4 @@ NeuroEvolution (NEAT) for a Snake Clone.
 PyGame + Neat
 
 
-![Alt Text](https://media.giphy.com/media/x0drfSkrfj1Dbt5I2f/giphy.gif)
+<a href="https://imgflip.com/gif/3onxq5"><img src="https://i.imgflip.com/3onxq5.gif" title="made at imgflip.com"/></a>
